@@ -40,10 +40,10 @@ export function PaymentModal({ open, onClose, onPay, defaultPhone }: PaymentModa
   return (
     <div className="modal-overlay" onClick={onClose} role="presentation">
       <div className="modal card" onClick={(e) => e.stopPropagation()}>
-        <h2>Payer via FedaPay</h2>
+        <h2>Paiement sur FedaPay</h2>
         <p className="modal-sub">
-          L&apos;argent sera bloqué chez PaySafe jusqu&apos;à validation. Opérateurs Togo : Moov ou
-          Togocel/Yas.
+          Vous allez être redirigé vers le site sécurisé FedaPay pour payer en Mobile Money. L&apos;argent
+          sera ensuite bloqué chez PaySafe jusqu&apos;à validation.
         </p>
 
         <form onSubmit={handleSubmit}>
@@ -84,7 +84,7 @@ export function PaymentModal({ open, onClose, onPay, defaultPhone }: PaymentModa
               Annuler
             </button>
             <button type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? "Redirection…" : "Payer"}
+              {loading ? "Redirection…" : "Continuer sur FedaPay ↗"}
             </button>
           </div>
         </form>

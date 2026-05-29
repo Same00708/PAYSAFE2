@@ -166,7 +166,7 @@ transactionsRouter.post(
       payment = await fedapayService.createPayment({
         amount: total,
         description: `PaySafe — ${transaction.title}`,
-        callbackUrl: `${env.appBaseUrl}/transactions/${id}`,
+        callbackUrl: `${env.appBaseUrl}/transactions/${id}?payment=return`,
         transactionId: id,
         customer: {
           firstname: names[0] ?? "Client",
@@ -197,6 +197,68 @@ transactionsRouter.post(
         reference: payment.reference,
         amount: total,
         stub: !fedapayService.isConfigured(),
+        fedapayPortalUrl: env.fedapay.portalUrl,
+      },
+    });
+  }),
+);
+
+/** Lien de paiement FedaPay (redirection vers leur site) */
+transactionsRouter.get(
+  "/:id/payment-link",
+  authenticate,
+  asyncHandler(async (req, res) => {
+    const id = Number(req.params.id);
+    const { mode, phone } = req.query as { mode?: string; phone?: string };
+    const transaction = await getTxOr404(id);
+
+    if (transaction.buyerId !== req.auth!.userId) {
+      throw new AppError(403, "Seul l'acheteur peut payer");
+    }
+    if (transaction.status !== "PENDING_PAYMENT") {
+      throw new AppError(400, "Cette transaction n'attend plus de paiement");
+    }
+
+    const buyer = await usersRepo.findUserById(transaction.buyerId);
+    if (!buyer) throw new AppError(404, "Acheteur introuvable");
+
+    const total = transaction.amount + transaction.fees;
+    const names = buyer.fullName.split(" ");
+    let payment;
+    try {
+      payment = await fedapayService.createPayment({
+        amount: total,
+        description: `PaySafe — ${transaction.title}`,
+        callbackUrl: `${env.appBaseUrl}/transactions/${id}?payment=return`,
+        transactionId: id,
+        customer: {
+          firstname: names[0] ?? "Client",
+          lastname: names.slice(1).join(" ") || "PaySafe",
+          phoneNumber: (phone as string) ?? buyer.phoneNumber,
+          country: "tg",
+        },
+        mode: mode as string | undefined,
+      });
+    } catch (err) {
+      if (fedapayService.isConfigured()) {
+        throw new AppError(
+          502,
+          err instanceof Error ? err.message : "FedaPay indisponible",
+        );
+      }
+      throw err;
+    }
+
+    if (payment.fedapayTransactionId > 0) {
+      await transactionsRepo.setFedapayTransactionId(id, String(payment.fedapayTransactionId));
+    }
+
+    res.json({
+      data: {
+        paymentUrl: payment.paymentUrl,
+        reference: payment.reference,
+        stub: !fedapayService.isConfigured(),
+        fedapayPortalUrl: env.fedapay.portalUrl,
       },
     });
   }),

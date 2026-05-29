@@ -67,6 +67,12 @@ export const env = {
     callbackUrl:
       process.env.FEDAPAY_CALLBACK_URL ??
       "http://localhost:5173/transactions",
+    /** Site public FedaPay (lien informatif + secours) */
+    portalUrl:
+      process.env.FEDAPAY_PORTAL_URL ??
+      ((process.env.FEDAPAY_ENVIRONMENT ?? "sandbox") === "live"
+        ? "https://pay.fedapay.com"
+        : "https://sandbox.fedapay.com"),
   },
 } as const;
 

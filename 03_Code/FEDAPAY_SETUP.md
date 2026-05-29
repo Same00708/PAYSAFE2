@@ -45,8 +45,9 @@ Ou API démarrée : `GET http://localhost:4000/api/health/integrations`
 ## 5. Test manuel paiement
 
 1. Connectez-vous (acheteur), créez une commande
-2. Payer → choisir Moov ou Togocel, numéro sandbox FedaPay
-3. Sans clés réelles : bouton « Simuler paiement » (dev, `ALLOW_SIMULATE_PAYMENT=true`)
+2. **Payer sur le site FedaPay ↗** → redirection vers la page de paiement FedaPay
+3. Après paiement, retour automatique sur PaySafe (`?payment=return`)
+4. Sans clés réelles : bouton « Simuler paiement » (démo, `ALLOW_SIMULATE_PAYMENT=true`)
 
 ## Limites connues
 

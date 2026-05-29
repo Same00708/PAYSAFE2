@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { api } from "../api/client";
 import { ChatPanel } from "../components/ChatPanel";
+import { FedapayPayLink } from "../components/FedapayPayLink";
 import { PaymentModal } from "../components/PaymentModal";
 import { UserChip } from "../components/UserChip";
 import { useAuth } from "../context/AuthContext";
@@ -26,6 +27,8 @@ export function TransactionDetailPage() {
   const [payOpen, setPayOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [tab, setTab] = useState<Tab>("details");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const paymentReturn = searchParams.get("payment");
 
   const numId = Number(id);
 
@@ -36,6 +39,12 @@ export function TransactionDetailPage() {
       .then((res) => setTransaction(res.data))
       .catch((err: Error) => setError(err.message));
   };
+
+  useEffect(() => {
+    if (paymentReturn === "return" && numId) {
+      reload();
+    }
+  }, [paymentReturn, numId]);
 
   useEffect(() => {
     if (!numId) return;
@@ -87,6 +96,24 @@ export function TransactionDetailPage() {
         </div>
         <p className="tx-detail-id">#{transaction.transactionId}</p>
       </header>
+
+      {paymentReturn === "return" && (
+        <div className="card" style={{ marginBottom: "1rem", background: "var(--color-primary-light)" }}>
+          <strong>Paiement FedaPay</strong>
+          <p style={{ margin: "0.35rem 0 0" }}>
+            Merci — si le paiement est confirmé, le statut sera mis à jour automatiquement.
+            Sinon attendez quelques instants ou rafraîchissez la page.
+          </p>
+          <button
+            type="button"
+            className="btn btn-outline btn-sm"
+            style={{ marginTop: "0.5rem" }}
+            onClick={() => setSearchParams({})}
+          >
+            Fermer
+          </button>
+        </div>
+      )}
 
       {transaction.status === "FUNDS_ESCROWED" && (
         <div className="escrow-banner">
@@ -148,11 +175,19 @@ export function TransactionDetailPage() {
             )}
           </div>
 
+          {transaction.status === "PENDING_PAYMENT" && isBuyer && (
+            <FedapayPayLink
+              transactionId={numId}
+              buyerPhone={user?.phoneNumber}
+              amountLabel={formatFcfa(total)}
+            />
+          )}
+
           <div className="action-bar">
             {transaction.status === "PENDING_PAYMENT" && isBuyer && (
               <>
-                <button type="button" className="btn btn-primary" onClick={() => setPayOpen(true)}>
-                  Payer via FedaPay
+                <button type="button" className="btn btn-outline" onClick={() => setPayOpen(true)}>
+                  Choisir l&apos;opérateur (Moov / Togocel)
                 </button>
                 <button
                   type="button"
@@ -160,7 +195,7 @@ export function TransactionDetailPage() {
                   disabled={busy}
                   onClick={() => runAction(() => api.simulatePayment(numId))}
                 >
-                  Simuler paiement
+                  Simuler paiement (démo)
                 </button>
               </>
             )}
@@ -236,8 +271,7 @@ export function TransactionDetailPage() {
         onClose={() => setPayOpen(false)}
         onPay={async (mode, phone) => {
           const res = await api.payTransaction(numId, { mode, phone });
-          window.open(res.data.paymentUrl, "_blank", "noopener,noreferrer");
-          reload();
+          window.location.href = res.data.paymentUrl;
         }}
         defaultPhone={user?.phoneNumber}
       />
