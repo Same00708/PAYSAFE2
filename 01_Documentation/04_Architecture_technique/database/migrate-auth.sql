@@ -1,0 +1,3 @@
+-- Migration auth OTP (à exécuter si request-code échoue)
+ALTER TABLE otp_sessions ADD COLUMN IF NOT EXISTS purpose VARCHAR(20) NOT NULL DEFAULT 'login';
+ALTER TABLE otp_sessions ADD COLUMN IF NOT EXISTS metadata JSONB;

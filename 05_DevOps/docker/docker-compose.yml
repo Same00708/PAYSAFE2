@@ -1,0 +1,18 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: paysafe-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: paysafe
+      POSTGRES_PASSWORD: paysafe_dev
+      POSTGRES_DB: paysafe
+    ports:
+      - "5432:5432"
+    volumes:
+      - paysafe_pg_data:/var/lib/postgresql/data
+      - ../../01_Documentation/04_Architecture_technique/database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ../../01_Documentation/04_Architecture_technique/database/schema-extensions.sql:/docker-entrypoint-initdb.d/02-schema-extensions.sql:ro
+
+volumes:
+  paysafe_pg_data:
