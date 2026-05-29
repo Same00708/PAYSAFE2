@@ -5,7 +5,7 @@ services:
   - type: web
     name: paysafe
     runtime: docker
-    dockerfilePath: ./03_Code/Dockerfile
+    dockerfilePath: ./Dockerfile
     dockerContext: .
     plan: free
     healthCheckPath: /api/health
