@@ -1,6 +1,4 @@
-# Render Blueprint — fichier à la racine du dépôt
-# https://render.com/docs/blueprint-spec
-
+# Render — racine du dépôt PAYSAFE2
 services:
   - type: web
     name: paysafe
@@ -26,9 +24,9 @@ services:
         sync: false
       - key: ADMIN_PHONES
         value: "+22893224301"
-      - key: FEDAPAY_ENVIRONMENT
-        value: sandbox
       - key: ALLOW_SIMULATE_PAYMENT
+        value: "true"
+      - key: SEED_DEMO_ON_START
         value: "true"
       - key: SMS_PROVIDER
         value: console

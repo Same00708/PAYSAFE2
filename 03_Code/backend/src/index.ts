@@ -3,6 +3,7 @@ import { env, assertFedapayConfigured, assertProductionSecrets } from "./config/
 import { checkDbConnection, getLastConnectionError } from "./db/pool.js";
 import { hasPaySafeUsersTable } from "./db/paysafeSchema.js";
 import { ensureDemoUsers } from "./repositories/users.js";
+import { seedDemoAccountsIfNeeded } from "./services/seedDemo.js";
 import { smsService } from "./services/sms.js";
 
 assertFedapayConfigured();
@@ -13,11 +14,15 @@ const app = createApp();
 app.listen(env.port, async () => {
   const dbOk = await checkDbConnection();
   const usersOk = dbOk ? await hasPaySafeUsersTable() : false;
-  if (dbOk && usersOk && env.nodeEnv !== "production") {
+  if (dbOk && usersOk) {
     try {
-      await ensureDemoUsers();
-    } catch {
-      /* ignore */
+      if (env.nodeEnv !== "production") {
+        await ensureDemoUsers();
+      } else if (env.seedDemoOnStart) {
+        await seedDemoAccountsIfNeeded();
+      }
+    } catch (err) {
+      console.warn("[PaySafe] Seed démo:", err instanceof Error ? err.message : err);
     }
   }
   console.info(`[PaySafe] http://localhost:${env.port}`);

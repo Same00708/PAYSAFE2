@@ -65,6 +65,28 @@ export function LoginPage() {
       <p style={{ textAlign: "center", marginTop: "1rem" }}>
         Pas de compte ? <Link to="/inscription">Créer un compte</Link>
       </p>
+
+      <div className="card demo-prof-box" style={{ marginTop: "1.5rem" }}>
+        <h3 style={{ margin: "0 0 0.5rem", fontSize: "1rem" }}>Comptes de démonstration</h3>
+        <p style={{ margin: 0, fontSize: "0.9rem", color: "var(--color-text-muted)" }}>
+          Connexion : entrez le numéro (8 chiffres, sans +228)
+        </p>
+        <ul className="demo-prof-list">
+          <li>
+            <strong>Marie</strong> (acheteuse) — <code>90123456</code>
+          </li>
+          <li>
+            <strong>Junior</strong> (vendeur) — <code>90765432</code>
+          </li>
+          <li>
+            <strong>Admin</strong> — <code>93224301</code>
+          </li>
+        </ul>
+        <p style={{ margin: "0.75rem 0 0", fontSize: "0.85rem" }}>
+          Créez une commande avec Marie, connectez-vous en Junior pour la voir. Paiement : mode
+          simulation disponible.
+        </p>
+      </div>
     </section>
   );
 }

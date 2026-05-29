@@ -25,6 +25,9 @@ export const env = {
   port: Number(process.env.PORT ?? 4000),
   corsOrigin: corsOrigins(),
   allowSimulatePayment: process.env.ALLOW_SIMULATE_PAYMENT === "true",
+  /** Crée les comptes démo au démarrage si la BDD est vide (prod Render) */
+  seedDemoOnStart:
+    isProd && process.env.SEED_DEMO_ON_START !== "false",
   databaseUrl: resolveDatabaseUrl(),
   jwtSecret: process.env.JWT_SECRET ?? "paysafe-dev-secret-change-in-production",
   jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? "7d",
